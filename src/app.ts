@@ -41,7 +41,33 @@ function validate(validateInput: Validatable) {
     }
     return isValid; 
 }
-class Project { 
+
+class ProjectList { 
+    templateElement: HTMLTemplateElement; 
+    hostingElement: HTMLDivElement; 
+    targettingElement: HTMLElement; 
+   
+    constructor(private type: string = 'finished' || 'active') {
+    this.templateElement = document.getElementById('project-list')! as HTMLTemplateElement; 
+        this.hostingElement = document.getElementById('app')! as HTMLDivElement; 
+        const importedNode = document.importNode(this.templateElement.content, true);
+        this.targettingElement = importedNode.firstElementChild as HTMLElement; 
+        this.targettingElement.id = `${this.type}-projects`;
+
+        this.attach(); 
+        this.renderContent(); 
+    }
+    private attach() {
+        this.hostingElement.insertAdjacentElement('afterend', this.targettingElement); 
+    }
+    private renderContent() {
+        const listId = `${this.type}-projects-list`; 
+        this.targettingElement.querySelector('ul')!.id = listId; 
+        this.targettingElement.querySelector('h2')!.textContent = this.type.toUpperCase() + ' Projects'; 
+
+    }
+}
+class ProjectInput { 
     templateElement: HTMLTemplateElement; 
     hostingElement: HTMLDivElement; 
     targettingElement: HTMLFormElement; 
@@ -108,4 +134,6 @@ class Project {
     }
 }
 
-const project = new Project; 
+const projectInput = new ProjectInput; 
+const finishedProjectsList = new ProjectList('finished');
+const activeProjectsList = new ProjectList('active');
