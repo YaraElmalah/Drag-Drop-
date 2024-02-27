@@ -12,6 +12,35 @@ const autobind = (_: any, _2: String, descriptor: PropertyDescriptor) => {
     return adjDescriptor; 
 }
 
+//Validation 
+interface Validatable {
+    value: string| number,
+    required?: boolean, 
+    minLength?: number, 
+    maxLength?: number, 
+    min?: number, 
+    max?: number
+}
+
+function validate(validateInput: Validatable) {
+    let isValid = true; 
+    if(validateInput.required) {
+        isValid = (isValid && validateInput.value.toString().trim().length !== 0)
+    }
+    if(validateInput.minLength && typeof validateInput.value === 'string') {
+        isValid = (isValid && validateInput.value.toString().trim().length >= validateInput.minLength); 
+    }
+        if(validateInput.maxLength && typeof validateInput.value === 'string') {
+        isValid = (isValid && validateInput.value.toString().trim().length <= validateInput.maxLength); 
+    }
+        if(validateInput.min && typeof validateInput.value === 'number') {
+        isValid = (isValid && +validateInput.value >= validateInput.min); 
+    }
+        if(validateInput.max && typeof validateInput.value === 'number') {
+        isValid = (isValid && validateInput.value<= validateInput.max); 
+    }
+    return isValid; 
+}
 class Project { 
     templateElement: HTMLTemplateElement; 
     hostingElement: HTMLDivElement; 
@@ -38,12 +67,44 @@ class Project {
     @autobind
     private submitHandler(event: Event) {
         event.preventDefault(); 
-        console.log(this.titleInputElement.value); 
-        console.log(this.descriptionInputElement.value); 
-        console.log(this.peopleInputElement.value); 
+        const validatedTitle: Validatable = {
+            value: this.titleInputElement.value, 
+            required: true, 
+            minLength: 5 
+        }; 
+     const validatedDescription: Validatable = {
+            value: this.descriptionInputElement.value, 
+            required: true, 
+            minLength: 5, 
+            maxLength: 10
+        }; 
+             const validatedPeople: Validatable = {
+            value: this.peopleInputElement.value, 
+            required: true, 
+            min: 1, 
+            max: 100
+        }; 
+        if(!validate(validatedTitle)) {
+            throw new Error('Title is not valid'); 
+        }
+        if(!validate(validatedDescription)) {
+            throw new Error('Description is not valid'); 
+        }
+        if(!validate(validatedPeople)) {
+            throw new Error('People Number is not valid'); 
+        }
+        console.log('Submittting Successfully'); 
+        console.log('Title is ' + validatedTitle.value, 'Description is ' + validatedDescription.value, 'People Number is ' + validatedPeople.value);
+        this.clearForm(); 
+       
     }
     private configure() {
         this.targettingElement.addEventListener('submit', this.submitHandler); 
+    }
+    private clearForm() {
+        this.titleInputElement.value = ''; 
+        this.descriptionInputElement.value = ''; 
+        this.peopleInputElement.value = '' ; 
     }
 }
 
